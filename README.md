@@ -1,3 +1,6 @@
+<p align="center">
+<img src="Door_INTU_Grad_Trans.png" alt="drawing" width="400" style="margin:0 auto; display:block;"/>
+</p>
 # :computer: Interface Example
 A basic decentralized application in JavaScript to provide an "invisible" on-chain account creation experience for end-users. 
 ## :tada: What is it?
