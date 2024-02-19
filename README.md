@@ -1,5 +1,5 @@
 <p align="center">
-<img src="Door_INTU_Grad_Trans.png" alt="drawing" width="400" style="margin:0 auto; display:block;"/>
+<img src="Door_INTU_Grad_Trans.png" alt="drawing" width="200" style="margin:0 auto; display:block;"/>
 </p>
 
 # :computer: Interface Example
@@ -13,15 +13,16 @@ It allows an end-user to create a on-chain account for your dApp without needing
 
 ## :rocket: Getting Started
 1. Clone the repo
-2. Rename the .env.example file to .env, 
-3. Replace the placeholder with the public addresses of your node_signers  
-4. Add in a clerk pub key: https://clerk.com/
+2. Rename the ```.env.example``` file to ```.env```, 
+3. In the ```.env``` file, Replace the placeholder (e.g. "0x12345") of ```NODE_SIGNER_PUBLIC_1 = ""``` and ```NODE_SIGNER_PUBLIC_2 = ""``` with the public addresses of your Automated Co-Signers (node_signers) 
+
+```Note: A minimum of 3 participants/factors are required to create in INTU account. You must run 2 Co-signers, or expect the end-user to participate twice.``` 
+
+5. Add in a clerk pub key: https://clerk.com/
    
 ```Note: you can use any Web2/Cloud-based service to log-in users```
 
-6. Run npm i && npm start and it should be up and running!
-
-This dapp relies on a SKALE sFUEL distributor of mine, which may or may not be up. If you wish to setup your own SKALE sFuel distributor, see here: 
+6. Run ```npm i && npm start``` and it should be up and running!
 
 ### :alien: Why SKALE?
 This example is set to run on the SKALE Testnet. Any EVM network can be supported.
@@ -63,7 +64,7 @@ These can be maintained and operated by your application, and can be deployed to
 
 ### Questions? 
 :email: <dev@intu.xyz> :email:
-discord: 🏮 [_https://discord.gg/sc9SjTewph_]
+[🏮 discord 🏮](https://discord.gg/sc9SjTewph)
 
 ### License
  
