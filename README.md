@@ -1,8 +1,10 @@
 <p align="center">
 <img src="Door_INTU_Grad_Trans.png" alt="drawing" width="400" style="margin:0 auto; display:block;"/>
 </p>
+
 # :computer: Interface Example
 A basic decentralized application in JavaScript to provide an "invisible" on-chain account creation experience for end-users. 
+
 ## :tada: What is it?
 
 This is code that can be ran alongside our [Automated Co-Signer](https://github.com/w3-key/intu_node_signer). 
@@ -22,7 +24,7 @@ It allows an end-user to create a on-chain account for your dApp without needing
 This dapp relies on a SKALE sFUEL distributor of mine, which may or may not be up. If you wish to setup your own SKALE sFuel distributor, see here: 
 
 ### :alien: Why SKALE?
-This example is set to run on the SKALE Testnet. 
+This example is set to run on the SKALE Testnet. Any EVM network can be supported.
 ```
 Chain ID : 974399131
 ```
@@ -31,8 +33,8 @@ SKALE is an ideal network for creating and using INTU accounts:
 - Near instant finality
 - Built on/for Ethereum
 
-**INTU accounts created on SKALE can be used for any EVM-compatible chain.** 
-SKALE is used for participant communication and data storage, and can be broadcast to any EVM-compatible chain. 
+**INTU accounts created and utilized on SKALE can be used form transactions for any EVM-compatible chain.**  
+SKALE is used for participant communication and data storage, and the completed transaction can be broadcast to any EVM-compatible chain.
  
 This application uses a SKALE Testnet sFUEL distributor run by INTU, which may not be always available. 
 
@@ -61,7 +63,7 @@ These can be maintained and operated by your application, and can be deployed to
 
 ### Questions? 
 :email: <dev@intu.xyz> :email:
-
+discord: 🏮 [_https://discord.gg/sc9SjTewph_]
 
 ### License
  
