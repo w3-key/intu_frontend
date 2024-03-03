@@ -89,7 +89,7 @@ function App() {
           const vaultAddress = createVaultResult.events[0].address;
           preRegistration(vaultAddress, intuSigner).then(async () => {
             console.log("start auto reg");
-            await sleep(10000);
+            await sleep(5000);
             automateRegistration(vaultAddress, intuPublic, intuSigner).then(async (result) => {
               console.log("automateregistrationdone");
               let registerallsteps = (await registerAllSteps(vaultAddress, intuSigner)).wait();
