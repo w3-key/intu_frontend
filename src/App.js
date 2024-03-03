@@ -1,222 +1,119 @@
-import "./App.css";
-import { Box, Text, Button, AbsoluteCenter } from "@chakra-ui/react";
 import {
-  vaultCreation,
-  automateRegistration,
   preRegistration,
-  registerAllSteps,
-  getUserRegistrationAllInfos,
-  completeVault,
-  getSingleVaultDetails,
+  automateRegistration,
   getVault,
+  getUserRegistrationAllInfos,
+  getUserPreRegisterInfos,
+  registerAllSteps,
   signTx,
-  combineSignedTx,
-  submitTransaction,
   _getFilteredUserInitializedLogs,
-  getDiscoId,
-  getAllVaultsDetails,
-  getRegistrationStatus,
-} from "@intuweb3/exp-web";
+} from "@intuweb3/exp-node";
+import VaultFactoryJson from "@intuweb3/exp-node/lib/services/web3/contracts/abi/VaultFactory.json";
+import VaultJson from "@intuweb3/exp-node/lib/services/web3/contracts/abi/Vault.json";
+import ContractInfos from "@intuweb3/exp-node/lib/services/web3/contracts/contractInfos";
 import { ethers } from "ethers";
-import { useState, useEffect } from "react";
-import { SignedIn, SignedOut, SignInButton, SignOutButton } from "@clerk/clerk-react";
-import { useAuth } from "@clerk/clerk-react";
-import abi from "./721.json";
+import "dotenv/config";
 
-const provider = new ethers.providers.JsonRpcProvider("https://testnet.skalenodes.com/v1/giant-half-dual-testnet");
+const provider = new ethers.providers.JsonRpcProvider("https://testnet.skalenodes.com/v1/juicy-low-small-testnet");
 
-function App() {
-  const [currentVault, setCurrentVault] = useState("");
-  const { userId } = useAuth();
-  const [intuWallet, setIntuWallet] = useState();
-  const [intuSigner, setIntuSigner] = useState();
-  const [intuPublic, setIntuPublic] = useState("");
-
-  useEffect(() => {
-    getIntuId();
-    console.log("CurrentVault : " + currentVault);
-    if (currentVault === "") {
-      createIntuVault();
-    }
-  }, [userId, intuWallet, currentVault]);
-
-  const getIntuId = async () => {
-    if (userId && intuWallet === undefined) {
-      const discoId = await getDiscoId(ethers.utils.sha512(ethers.utils.toUtf8Bytes(userId)));
-      const wallet = new ethers.Wallet("0x" + discoId.key);
-      const walletaddress = await wallet.getAddress();
-      setIntuPublic(walletaddress);
-      let signer: ethers.Signer = wallet.connect(provider);
-      setIntuWallet(wallet);
-      setIntuSigner(signer);
-      if (currentVault === "") {
-        _getFilteredUserInitializedLogs(walletaddress, provider).then(async (res) => {
-          if (res && res.length > 0) {
-            setCurrentVault(res[res.length - 1]);
-            console.log("Vault Details below \\/");
-            console.log(await getSingleVaultDetails(res[res.length - 1], provider));
-          }
-        });
-      }
-    } else if (intuWallet && currentVault === "") {
-      _getFilteredUserInitializedLogs(intuPublic, provider).then(async (res) => {
-        console.log(res);
-        if (res && res.length > 0) {
-          setCurrentVault(res[res.length - 1]);
-          console.log(await getSingleVaultDetails(res[res.length - 1], provider));
-        }
-      });
-    }
-  };
-
-  const createIntuVault = async () => {
-    if (intuWallet) {
-      let walletAddress = await intuWallet.getAddress();
-      let vaults = await getAllVaultsDetails(walletAddress, provider);
-      if (vaults && vaults.length === 0) {
-        const d1public = process.env.REACT_APP_NODE_SIGNER_PUBLIC_1;
-        const d2public = process.env.REACT_APP_NODE_SIGNER_PUBLIC_2;
-        const proposedAddresses = [d1public, d2public, intuPublic]; // it is important to put the node signers FIRST in this array
-        if (intuSigner && intuPublic) {
-          console.log("getskale");
-          await fetch(`http://18.246.208.46:8888/claim/${intuPublic}`)
-            .then((response) => response.text())
-            .catch((error) => console.log("error", error));
-          await sleep(10000);
-          console.log("startvaultcreation");
-          const createVaultTransaction = await vaultCreation(proposedAddresses, "NewTestVault", 66, 66, 66, intuSigner);
-          const createVaultResult = await createVaultTransaction.wait();
-          const vaultAddress = createVaultResult.events[0].address;
-          preRegistration(vaultAddress, intuSigner).then(async () => {
-            console.log("start auto reg");
-            await sleep(10000);
-            automateRegistration(vaultAddress, intuPublic, intuSigner).then(async (result) => {
-              console.log("automateregistrationdone");
-              let registerallsteps = (await registerAllSteps(vaultAddress, intuSigner)).wait();
-              console.log(await registerallsteps);
-
-              let vault = await getVault(vaultAddress, provider);
-
-              for (let i = 0; i < (await vault.users.length); i++) {
-                let isRegistered = await getUserRegistrationAllInfos(vaultAddress, intuPublic, provider);
-                console.log("registereduserinfo " + i);
-                console.log(isRegistered.registered);
-              }
-              await sleep(3000);
-              await completeVault(vaultAddress, intuSigner).then((res) => {
-                console.log("ALLDONE!!!");
-                // then refresh page
-                _getFilteredUserInitializedLogs(intuPublic, provider).then(async (res) => {
-                  console.log(res);
-                  if (res && res.length > 0) {
-                    setCurrentVault(res[res.length - 1]);
-                    console.log(await getSingleVaultDetails(res[res.length - 1], provider));
-                  }
-                });
-              });
-            });
-          });
-        }
-      }
-    }
-  };
-
-  const sleep = (delay: number) => new Promise((resolve) => setTimeout(resolve, delay));
-
-  // Function to show the spinner
-  //function showSpinner() {
-  //  document.getElementById("spinner").style.display = "block";
-  //}
-  // Function to hide the spinner
-  //function hideSpinner() {
-  //  document.getElementById("spinner").style.display = "none";
-  //}
-
-  let submitTx = async (myVaultAddress) => {
-    //const erc721Interface = new ethers.utils.Interface(["function safeTransferFrom(address _from, address _to, uint256 _tokenId)"]);
-    let contractInterface = new ethers.utils.Interface(abi);
-    let d = contractInterface.encodeFunctionData("mint", [intuPublic, "1"]);
-    let chainId = "974399131";
-    let value = "0";
-    let to = "0x3665589D97E04A139f1D95b8c852e7c6F67DFb78"; //this is the smart contract address where we will mint our NFT from
-    let gasPrice = "5000000000000";
-    let gas = "25000000000";
-    let nonce = 0;
-    let data = d;
-    await submitTransaction(to, value, chainId, String(nonce), data, gasPrice, gas, myVaultAddress, intuSigner);
-  };
-
-  // sign transaction not needed in our example because the nodesigners do it for us.
-  //let signTransaction = async (myVaultAddress) => {
-  //  let txId = 1;
-  //  await signTx(myVaultAddress, txId, intuSigner);
-  //};
-
-  let combineTx = async (myVaultAddress) => {
-    let txId = 2;
-    let hash = await combineSignedTx(myVaultAddress, txId, intuSigner);
-    provider
-      .sendTransaction(hash.combinedTxHash.finalSignedTransaction)
-      .then((txResponse) => {
-        console.log(txResponse);
-        console.log("https://giant-half-dual-testnet.explorer.testnet.skalenodes.com/tx/" + txResponse.hash);
-      })
-      .catch((error) => {
-        console.error("Failed to send transaction:", error);
-      });
-  };
-
-  return (
-    <div className="App">
-      <Box h="calc(100vh)" w="100%" bgGradient="linear(to-l, #7928CA, #FF0080)">
-        <SignedIn>
-          <SignOutButton>
-            <Button>Disconnect...</Button>
-          </SignOutButton>
-        </SignedIn>
-        <AbsoluteCenter>
-          <SignedOut>
-            <Text fontSize="xl">Welcome to the Gem Game!</Text>
-            <Text fontSize="xl">
-              The only game that offers NFT gems <br />
-              without needing a wallet!
-            </Text>
-            <SignInButton mode={"modal"}>
-              <Button colorScheme="purple" size="lg">
-                Sign In
-              </Button>
-            </SignInButton>
-          </SignedOut>
-
-          <SignedIn>
-            {currentVault === "" ? (
-              <>
-                <div>
-                  Setting up your account! <br />
-                  In the meantime, why not fill out your profile!
-                </div>
-                <br />
-                <br />
-                <div>SOME EXAMPLE FORM HERE</div>
-                <div>name ..... </div>
-                <div>email .....</div>
-                <div>handle .....</div>
-                <br />
-                <br />
-                <Button>SAVE...</Button> {/*This would be saving the above data to your local database*/}
-              </>
-            ) : (
-              <>
-                <div>Your web3 account is all set!</div>
-                <div>Time to claim your Gem so you can play the game!</div>
-                <Button onClick={() => submitTx(currentVault)}>Claim My Gem!</Button>
-                <Button onClick={() => combineTx(currentVault)}>Confirm</Button>
-              </>
-            )}
-          </SignedIn>
-        </AbsoluteCenter>
-      </Box>
-    </div>
-  );
+async function createSigner(key: string): Promise<ethers.Signer> {
+  const wallet = new ethers.Wallet(key);
+  const signer = wallet.connect(provider);
+  return signer;
 }
-export default App;
+
+function sleep(delay) {
+  return new Promise((resolve) => setTimeout(resolve, delay));
+}
+let arrayOfVaults: any[] = [];
+
+async function keepCheckingUntilTrue(vaultAddress, userAddress): Promise<boolean> {
+  console.log("checking if user is preregistered");
+  let done: boolean = false;
+  while (!done) {
+    await sleep(5000);
+    await getUserPreRegisterInfos(vaultAddress, userAddress, provider)
+      .then((result) => {
+        if (result && result.registered) {
+          done = true;
+        }
+      })
+      .catch((err) => console.log(err));
+  }
+  return done;
+}
+
+(async () => {
+  //create listener
+  const signer = await createSigner(process.env.SIGNER || "0x0000000000000000000000000000000000000000");
+  const nodeAddress = await signer.getAddress();
+  console.log("nodeaddress : " + nodeAddress + " ready");
+
+  const addTransactionEventListener = new Proxy(arrayOfVaults, {
+    set: function (target, property, value) {
+      if (property === "length") {
+        let vaultAddress = arrayOfVaults[arrayOfVaults.length - 1];
+        const contract = new ethers.Contract(vaultAddress, VaultJson.abi, provider);
+        contract.on("TransactionProposed", (txId, transactionInfo) => {
+          signTx(vaultAddress, txId, signer).then(async (res) => {
+            console.log("signing complete");
+          });
+        }),
+          (error) => {
+            console.error(error);
+          };
+      }
+      target[property] = value;
+      return true;
+    },
+  });
+
+  _getFilteredUserInitializedLogs(nodeAddress, provider).then((res) => {
+    if (res && res.length > 0) {
+      addTransactionEventListener.push(res[res.length - 1]);
+    }
+  });
+
+  let contractAddress = ContractInfos(1444673419).VaultFactory.address;
+  const contract = new ethers.Contract(contractAddress, VaultFactoryJson.abi, provider);
+  contract.on("VaultCreated", (vaultAddress) => {
+    //create new event listener to sign transactions
+    addTransactionEventListener.push(vaultAddress);
+    getVault(vaultAddress, provider).then(async (result) => {
+      let users = result.users;
+      for (let i = 0; i < users.length; i++)
+        if (users[i].address === nodeAddress) {
+          preRegistration(vaultAddress, signer)
+            .then(async () => {
+              try {
+                const result = await keepCheckingUntilTrue(vaultAddress, users[2].address);
+                if (result) {
+                  await sleep(5000); //need to await the primary user's data being in the db, this is a SKALE blocktime
+                  try {
+                    await automateRegistration(vaultAddress, nodeAddress, signer).then(async (result) => {
+                      let isRegistered = await getUserRegistrationAllInfos(vaultAddress, nodeAddress, provider);
+                      console.log("registered: " + isRegistered.registered);
+                      if (isRegistered.registered === false) {
+                        await registerAllSteps(vaultAddress, signer);
+                      }
+                    });
+                  } catch (error) {
+                    console.log(error);
+                  }
+                }
+              } catch (error) {
+                console.error("Error occurred:", error);
+              }
+            })
+            .catch((error) => {
+              console.error(error);
+            });
+        } else {
+          //console.log("no match, do nothing");
+        }
+    });
+  }),
+    (error) => {
+      console.error(error);
+    };
+})();
