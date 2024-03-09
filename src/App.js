@@ -120,6 +120,7 @@ function App() {
           await fetch(`http://18.246.208.46:8888/claim/${intuPublic}`)
             //.then((response) => console.log(response.text()))
             .catch((error) => console.log("error", error));
+          await sleep(5000);
           console.log("startvaultcreation");
           const createVaultTransaction = await vaultCreation(proposedAddresses, "NewTestVault", 66, 66, 66, intuSigner);
           const createVaultResult = await createVaultTransaction.wait();
@@ -159,7 +160,7 @@ function App() {
   let submitTx = async (myVaultAddress) => {
     console.log(intuPublic);
     let contractInterface = new ethers.utils.Interface(abi);
-    let d = contractInterface.encodeFunctionData("mint", [intuPublic, "5"]);
+    let d = contractInterface.encodeFunctionData("mint", [intuPublic, "6"]);
     console.log(d);
     //let contract = new ethers.Contract("0x4c7cDa9DcE917C8490577f31d482FAcE62D2D630", abi, intuSigner);
 
