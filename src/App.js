@@ -12,7 +12,7 @@ import {
   combineSignedTx,
   submitTransaction,
   _getFilteredUserInitializedLogs,
-  getDiscoId,
+  getUniqueHashFromSignature,
   getVaults,
 } from "@intuweb3/exp-web";
 import { ethers } from "ethers";
@@ -48,8 +48,8 @@ function App() {
   useEffect(() => {
     async function fetchData() {
       if (userId && intuWallet === undefined) {
-        const discoId = await getDiscoId(ethers.utils.sha512(ethers.utils.toUtf8Bytes(userId)));
-        const wallet = new ethers.Wallet("0x" + discoId.key);
+        const uHash = await getUniqueHashFromSignature(ethers.utils.sha512(ethers.utils.toUtf8Bytes(userId)));
+        const wallet = new ethers.Wallet("0x" + uHash.key);
         const walletaddress = await wallet.getAddress();
         setIntuPublic(walletaddress);
         let signer = wallet.connect(provider);
