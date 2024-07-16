@@ -11,7 +11,7 @@ import {
   getVault,
   combineSignedTx,
   submitTransaction,
-  _getFilteredUserInitializedLogs,
+  getFilteredUserInitializedLogs,
   getUniqueHashFromSignature,
   getVaults,
 } from "@intuweb3/exp-web";
@@ -112,8 +112,8 @@ function App() {
         setCurrentVault(vaults[0].masterPublicAddress);
       }
       if (vaults && vaults.length === 0) {
-        const d1public = process.env.REACT_APP_NODE_SIGNER_PUBLIC_1;
-        const d2public = process.env.REACT_APP_NODE_SIGNER_PUBLIC_2;
+        const d1public = import.meta.env.VITE_NODE_SIGNER_PUBLIC_1;
+        const d2public = import.meta.env.VITE_NODE_SIGNER_PUBLIC_2;
         const proposedAddresses = [d1public, d2public, intuPublic]; // it is important to put the node signers FIRST in this array
         if (intuSigner && intuPublic) {
           console.log("getskale");
@@ -141,7 +141,7 @@ function App() {
               await sleep(2500);
               await completeVault(vaultAddress, intuSigner).then((res) => {
                 console.log("ALLDONE!!!");
-                _getFilteredUserInitializedLogs(intuPublic, provider).then(async (res) => {
+                getFilteredUserInitializedLogs(intuPublic, provider).then(async (res) => {
                   console.log(res);
                   if (res && res.length > 0) {
                     setCurrentVault(res[res.length - 1]);
