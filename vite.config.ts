@@ -1,18 +1,23 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import viteTsconfigPaths from 'vite-tsconfig-paths'
 import { resolve } from 'path'
-import path from "node:path";
 import wasm from "vite-plugin-wasm";
-
-console.log("RUNNING VITE CONFIG")
 
 export default defineConfig({
     base: './',
-    plugins: [react(),wasm(),viteTsconfigPaths()],
+    plugins: [react(),wasm()],
     server: {    
         open: true,
         port: 3000, 
+        fs: {
+            //allow: ['C:/Projects/sdk/dist/lib/services/cryptography/web_assembly', 'C:/Projects/sdk/test-frontend']
+            allow:['./', '../dist/lib/services/cryptography/web_assembly/intu_crypto_bg.wasm']
+          }
+    },
+    resolve: {
+        alias: {
+            '@intuweb3': '/node_modules/@intuweb3/exp-web/index.js',
+        },
     },
     //resolve: {
     //    alias: [
