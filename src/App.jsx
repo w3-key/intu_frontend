@@ -116,7 +116,7 @@ function App() {
         const proposedAddresses = [d1public, d2public, intuPublic]; // it is important to put the node signers FIRST in this array
         if (intuSigner && intuPublic) {
           console.log("getskale");
-          await fetch(`http://18.246.208.46:8888/claim/${intuPublic}`)
+          await fetch(`http://intufaucet.xyz/faucet/claim/${intuPublic}`)
             //.then((response) => console.log(response.text()))
             .catch((error) => console.log("error", error));
           await sleep(5000);
