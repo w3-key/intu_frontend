@@ -11,12 +11,12 @@ export default defineConfig({
         port: 3000, 
         fs: {
             //allow: ['C:/Projects/sdk/dist/lib/services/cryptography/web_assembly', 'C:/Projects/sdk/test-frontend']
-            allow:['./', '../dist/lib/services/cryptography/web_assembly/intu_crypto_bg.wasm']
+            allow:['./', '../dist/lib/services/']
           }
     },
     resolve: {
         alias: {
-            '@intuweb3': '/node_modules/@intuweb3/exp-web/index.js',
+            '@intuweb3/exp-web': '/node_modules/@intuweb3/exp-web/lib/index.js',
         },
     },
     //resolve: {

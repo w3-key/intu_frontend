@@ -7,7 +7,6 @@ import {
   registerAllSteps,
   getUserRegistrationAllInfos,
   completeVault,
-  getSingleVaultDetails,
   getVault,
   combineSignedTx,
   submitTransaction,
@@ -145,7 +144,7 @@ function App() {
                   console.log(res);
                   if (res && res.length > 0) {
                     setCurrentVault(res[res.length - 1]);
-                    console.log(await getSingleVaultDetails(res[res.length - 1], provider));
+                    console.log(await getvVult(res[res.length - 1], provider));
                   }
                 });
               });
